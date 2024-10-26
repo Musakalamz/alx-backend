@@ -1,16 +1,30 @@
 #!/usr/bin/env python3
-""" Return pagination of results """
-# imports
+"""
+Defines class Server that paginates a database of popular baby names
+"""
 import csv
 import math
 from typing import List, Tuple
 
 
-def index_range(page: int, page_size: int) -> Tuple:
-    """ Return Tuple from page and page_size """
-    start = page * page_size
-    end = start + page_size
+def index_range(page: int, page_size: int) -> Tuple[int, int]:
+    """
+    Takes 2 integer arguments and returns a tuple of size two
+    containing the start and end index corresponding to the range of
+    indexes to return in a list for those pagination parameters
+    Args:
+        page (int): page number to return (pages are 1-indexed)
+        page_size (int): number of items per page
+    Return:
+        tuple(start_index, end_index)
+    """
+    start, end = 0, 0
+    for i in range(page):
+        start = end
+        end += page_size
+
     return (start, end)
+
 
 class Server:
     """Server class to paginate a database of popular baby names.
@@ -32,35 +46,21 @@ class Server:
         return self.__dataset
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
-        """ Return pagination of Query """
-        assert isinstance(page, int) and isinstance(page_size, int)
-        assert page > 0 and page_size > 0
+        """
+        Takes 2 integer arguments and returns requested page from the dataset
+        Args:
+            page (int): required page number. must be a positive integer
+            page_size (int): number of records per page. must be a +ve integer
+        Return:
+            list of lists containing required data from the dataset
+        """
+        assert type(page) is int and page > 0
+        assert type(page_size) is int and page_size > 0
 
-        query = index_range(page, page_size)
-        start, end = query[0], query[1]
-
-        data = self.dataset()
-
-        return data[start:end]
-
-
-if __name__ == "__main__":
-    server = Server()
-    try:
-        should_err = server.get_page(-10, 2)
-    except AssertionError:
-        print("AssertionError raised with negative values")
-
-    try:
-        should_err = server.get_page(0, 0)
-    except AssertionError:
-        print("AssertionError raised with 0")
-
-    try:
-        should_err = server.get_page(2, 'Bob')
-    except AssertionError:
-        print("AssertionError raised when page and/or page_size are not ints")
-
-    print(server.get_page(1, 3))
-    print(server.get_page(3, 2))
-    print(server.get_page(3000, 100))
+        dataset = self.dataset()
+        data_length = len(dataset)
+        try:
+            index = index_range(page, page_size)
+            return dataset[index[0]:index[1]]
+        except IndexError:
+            return []
