@@ -1,4 +1,5 @@
-# 0x0A. i18n
+# 0x02. i18n
+
 ## Internationalization and localization
 
 ### Resources
